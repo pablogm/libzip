@@ -159,7 +159,11 @@ zip_source_buffer_fragment_with_attributes_create(const zip_buffer_fragment_t *f
     ctx->out = NULL;
     ctx->mtime = time(NULL);
     if (attributes) {
-        (void)memcpy_s(&ctx->attributes, sizeof(ctx->attributes), attributes, sizeof(ctx->attributes));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(&ctx->attributes, attributes, sizeof(ctx->attributes));
+#else
+    (void)memcpy_s(&ctx->attributes, sizeof(ctx->attributes), attributes, sizeof(ctx->attributes));
+#endif
     }
     else {
         zip_file_attributes_init(&ctx->attributes);
@@ -226,7 +230,11 @@ read_data(void *state, void *data, zip_uint64_t len, zip_source_cmd_t cmd) {
             return -1;
         }
 
-        (void)memcpy_s(data, sizeof(ctx->attributes), &ctx->attributes, sizeof(ctx->attributes));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(data, &ctx->attributes, sizeof(ctx->attributes));
+#else
+    (void)memcpy_s(data, sizeof(ctx->attributes), &ctx->attributes, sizeof(ctx->attributes));
+#endif
 
         return sizeof(ctx->attributes);
     }
@@ -541,7 +549,11 @@ buffer_read(buffer_t *buffer, zip_uint8_t *data, zip_uint64_t length) {
         left = ZIP_MIN(left, SIZE_MAX);
 #endif
 
-        (void)memcpy_s(data + n, (size_t)left, buffer->fragments[i].data + fragment_offset, (size_t)left);
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(data + n, buffer->fragments[i].data + fragment_offset, (size_t)left);
+#else
+    (void)memcpy_s(data + n, (size_t)left, buffer->fragments[i].data + fragment_offset, (size_t)left);
+#endif
 
         if (left == buffer->fragments[i].length - fragment_offset) {
             i++;
@@ -621,7 +633,11 @@ buffer_write(buffer_t *buffer, const zip_uint8_t *data, zip_uint64_t length, zip
         n = ZIP_MIN(n, SIZE_MAX);
 #endif
 
-        (void)memcpy_s(buffer->fragments[i].data + fragment_offset, (size_t)n, data + copied, (size_t)n);
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(buffer->fragments[i].data + fragment_offset, data + copied, (size_t)n);
+#else
+    (void)memcpy_s(buffer->fragments[i].data + fragment_offset, (size_t)n, data + copied, (size_t)n);
+#endif
 
         if (n == buffer->fragments[i].length - fragment_offset) {
             i++;

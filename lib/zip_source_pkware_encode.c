@@ -209,7 +209,11 @@ pkware_encrypt(zip_source_t *src, void *ud, void *data, zip_uint64_t length, zip
             zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
             return -1;
         }
-        (void)memcpy_s(data, sizeof(ctx->dostime), &ctx->dostime, sizeof(ctx->dostime));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(data, &ctx->dostime, sizeof(ctx->dostime));
+#else
+    (void)memcpy_s(data, sizeof(ctx->dostime), &ctx->dostime, sizeof(ctx->dostime));
+#endif
         return sizeof(ctx->dostime);
 
     case ZIP_SOURCE_SUPPORTS:

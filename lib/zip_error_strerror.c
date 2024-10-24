@@ -62,12 +62,21 @@ zip_error_strerror(zip_error_t *err) {
 
         switch (_zip_err_str[err->zip_err].type) {
             case ZIP_ET_SYS: {
-                size_t len = strerrorlen_s(err->sys_err) + 1;
+#if defined(__APPLE__) && defined(__MACH__)
+    size_t len = strlen(strerror(err->sys_err)) + 1;
+#else
+    size_t len = strerrorlen_s(err->sys_err) + 1;
+#endif
                 system_error_buffer = malloc(len);
                 if (system_error_buffer == NULL) {
                     return _zip_err_str[ZIP_ER_MEMORY].description;
                 }
-                strerror_s(system_error_buffer, len, err->sys_err);
+#if defined(__APPLE__) && defined(__MACH__)
+    strncpy(system_error_buffer, strerror(err->sys_err), len);
+    system_error_buffer[len - 1] = '\0';
+#else
+    strerror_s(system_error_buffer, len, err->sys_err);
+#endif
                 system_error_string = system_error_buffer;
                 break;
             }

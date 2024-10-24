@@ -117,7 +117,11 @@ zip_source_file_common_new(const char *fname, void *file, zip_uint64_t start, zi
     ctx->start = start;
     ctx->len = length;
     if (st) {
-        (void)memcpy_s(&ctx->st, sizeof(ctx->st), st, sizeof(*st));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(&ctx->st, st, sizeof(*st));
+#else
+    (void)memcpy_s(&ctx->st, sizeof(ctx->st), st, sizeof(*st));
+#endif
         ctx->st.name = NULL;
         ctx->st.valid &= ~ZIP_STAT_NAME;
     }
@@ -272,7 +276,11 @@ read_file(void *state, void *data, zip_uint64_t len, zip_source_cmd_t cmd) {
             zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
             return -1;
         }
-        (void)memcpy_s(data, sizeof(ctx->attributes), &ctx->attributes, sizeof(ctx->attributes));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(data, &ctx->attributes, sizeof(ctx->attributes));
+#else
+    (void)memcpy_s(data, sizeof(ctx->attributes), &ctx->attributes, sizeof(ctx->attributes));
+#endif
         return sizeof(ctx->attributes);
 
     case ZIP_SOURCE_OPEN:
@@ -365,7 +373,11 @@ read_file(void *state, void *data, zip_uint64_t len, zip_source_cmd_t cmd) {
             return -1;
         }
 
-        (void)memcpy_s(data, sizeof(ctx->st), &ctx->st, sizeof(ctx->st));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(data, &ctx->st, sizeof(ctx->st));
+#else
+    (void)memcpy_s(data, sizeof(ctx->st), &ctx->st, sizeof(ctx->st));
+#endif
         return sizeof(ctx->st);
     }
 

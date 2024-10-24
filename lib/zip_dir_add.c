@@ -65,7 +65,11 @@ zip_dir_add(zip_t *za, const char *name, zip_flags_t flags) {
             zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
             return -1;
         }
+#if defined(__APPLE__) && defined(__MACH__)
+        (void)strncpy(s, name, len);
+#else
         (void)strncpy_s(s, len + 2, name, len);
+#endif
         s[len] = '/';
         s[len + 1] = '\0';
     }

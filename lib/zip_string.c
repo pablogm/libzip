@@ -166,7 +166,12 @@ _zip_string_new(const zip_uint8_t *raw, zip_uint16_t length, zip_flags_t flags, 
         return NULL;
     }
 
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(s->raw, raw, length);
+    s->raw[length] = '\0';  // Ensure null-termination
+#else
     (void)memcpy_s(s->raw, length + 1, raw, length);
+#endif
     s->raw[length] = '\0';
     s->length = length;
     s->encoding = ZIP_ENCODING_UNKNOWN;

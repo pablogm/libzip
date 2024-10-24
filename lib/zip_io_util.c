@@ -83,7 +83,11 @@ _zip_read_data(zip_buffer_t *buffer, zip_source_t *src, size_t length, bool nulp
             free(r);
             return NULL;
         }
-        (void)memcpy_s(r, length, data, length);
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(r, data, length);
+#else
+    (void)memcpy_s(r, length, data, length);
+#endif
     }
     else {
         if (_zip_read(src, r, length, error) < 0) {

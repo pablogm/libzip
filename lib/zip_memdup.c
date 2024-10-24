@@ -50,7 +50,11 @@ _zip_memdup(const void *mem, size_t len, zip_error_t *error) {
         return NULL;
     }
 
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(ret, mem, len);
+#else
     (void)memcpy_s(ret, len, mem, len);
+#endif
 
     return ret;
 }

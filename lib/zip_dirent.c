@@ -230,7 +230,11 @@ _zip_dirent_clone(const zip_dirent_t *sde) {
         return NULL;
 
     if (sde)
-        (void)memcpy_s(tde, sizeof(*tde), sde, sizeof(*sde));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(tde, sde, sizeof(*sde));
+#else
+    (void)memcpy_s(tde, sizeof(*tde), sde, sizeof(*sde));
+#endif
     else
         _zip_dirent_init(tde);
 

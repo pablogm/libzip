@@ -100,7 +100,11 @@ _zip_source_window_new(zip_source_t *src, zip_uint64_t start, zip_int64_t length
     zip_stat_init(&ctx->stat);
     ctx->stat_invalid = st_invalid;
     if (attributes != NULL) {
-        (void)memcpy_s(&ctx->attributes, sizeof(ctx->attributes), attributes, sizeof(ctx->attributes));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(&ctx->attributes, attributes, sizeof(ctx->attributes));
+#else
+    (void)memcpy_s(&ctx->attributes, sizeof(ctx->attributes), attributes, sizeof(ctx->attributes));
+#endif
     }
     else {
         zip_file_attributes_init(&ctx->attributes);
@@ -315,7 +319,11 @@ window_read(zip_source_t *src, void *_ctx, void *data, zip_uint64_t len, zip_sou
             return -1;
         }
 
-        (void)memcpy_s(data, sizeof(ctx->attributes), &ctx->attributes, sizeof(ctx->attributes));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(data, &ctx->attributes, sizeof(ctx->attributes));
+#else
+    (void)memcpy_s(data, sizeof(ctx->attributes), &ctx->attributes, sizeof(ctx->attributes));
+#endif
         return sizeof(ctx->attributes);
 
     case ZIP_SOURCE_GET_DOS_TIME:
@@ -324,7 +332,11 @@ window_read(zip_source_t *src, void *_ctx, void *data, zip_uint64_t len, zip_sou
             return -1;
         }
         if (ctx->dostime_valid) {
-            (void)memcpy_s(data, sizeof(ctx->dostime), &ctx->dostime, sizeof(ctx->dostime));
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(data, &ctx->dostime, sizeof(ctx->dostime));
+#else
+    (void)memcpy_s(data, sizeof(ctx->dostime), &ctx->dostime, sizeof(ctx->dostime));
+#endif
             return sizeof(ctx->dostime);
         }
         else {

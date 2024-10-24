@@ -141,7 +141,11 @@ _zip_buffer_read(zip_buffer_t *buffer, zip_uint8_t *data, zip_uint64_t length) {
     copied = 0;
     while (copied < length) {
         size_t n = ZIP_MIN(length - copied, SIZE_MAX);
-        (void)memcpy_s(data + copied, n, _zip_buffer_get(buffer, n), n);
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(data + copied, _zip_buffer_get(buffer, n), n);
+#else
+    (void)memcpy_s(data + copied, n, _zip_buffer_get(buffer, n), n);
+#endif
         copied += n;
     }
 
@@ -234,7 +238,11 @@ _zip_buffer_put(zip_buffer_t *buffer, const void *src, size_t length) {
         return -1;
     }
 
+#if defined(__APPLE__) && defined(__MACH__)
+    (void)memcpy(dst, src, length);
+#else
     (void)memcpy_s(dst, length, src, length);
+#endif
     return 0;
 }
 
